@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "es2016",                                  /* 支持es6的语法 Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "module": "commonjs",                                /* Specify what module code is generated. */
+    "esModuleInterop": true,                             /* 这个选项允许我们默认导出的时候使用*代替导出的内容。Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
+    "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
+    "rootDir": "./",                                     /* 设置代码的根目录为当前目录。*/
+    "outDir": "./build",                                 /* 最终将Typescript代码编译成执行的Javascript代码目录。*/
+    "strict": true,                                      /* Enable all strict type-checking options. */
+  },
+}

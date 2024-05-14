@@ -1,0 +1,17 @@
+{
+  "name": "CIM_main_moborepo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "cesium-dev": "cd ./packages/CesiumInit && pnpm dev",
+    "three-dev": "cd ./packages/threeJS_vue3 && pnpm dev --host",
+    "express-dev": "cd ./packages/express-typescript && pnpm dev",
+    "webgl": "cd ./packages/webGL2 && pnpm dev",
+    "three-document": "cd ./packages/threeJSEditor && pnpm start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

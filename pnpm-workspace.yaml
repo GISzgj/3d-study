@@ -1,0 +1,9 @@
+packages:
+  # 负责的所有前端项目
+  - 'packages/*'
+  # 公共组件/方法
+  - 'components/**'
+  # 公共api封装
+  - 'api/**'
+  # 公共函数
+  - 'utils/**'

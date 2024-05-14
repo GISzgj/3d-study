@@ -1,0 +1,7 @@
+POST http://127.0.0.1:3000/api/unit/add
+Content-Type: application/json
+
+{
+  "build_id": 2,
+  "number": 1
+}

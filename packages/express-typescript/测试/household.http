@@ -1,0 +1,2 @@
+### 查询全部
+GET http://127.0.0.1:3000/api/household/getdata?page=1&size=3

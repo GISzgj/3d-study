@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Heart</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+    <link rel="shortcut icon" href="../../svg/heart.svg" />
+    <link type="text/css" rel="stylesheet" href="../../main.css" />
+    <style type="text/css"></style>
+  </head>
+  <body>
+    <script type="x-shader/x-vertex" id="vertexshader">
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    </script>
+    <script type="x-shader/x-fragment" id="fragmentshader">
+      uniform sampler2D baseTexture;
+      uniform sampler2D bloomTexture;
+      varying vec2 vUv;
+      void main() {
+        gl_FragColor = (texture2D(baseTexture, vUv) + vec4(1.0) * texture2D(bloomTexture, vUv));
+      }
+    </script>
+    <script type="module">
+      import * as THREE from '../../build/three.module.js'
+      import Stats from '../jsm/libs/stats.module.js'
+      import { OrbitControls } from '../jsm/controls/OrbitControls.js'
+      import { EffectComposer } from '../jsm/postprocessing/EffectComposer.js'
+      import { RenderPass } from '../jsm/postprocessing/RenderPass.js'
+      import { ShaderPass } from '../jsm/postprocessing/ShaderPass.js'
+      import { UnrealBloomPass } from '../jsm/postprocessing/UnrealBloomPass.js'
+      import { FXAAShader } from '../jsm/shaders/FXAAShader.js'
+
+      let renderer, scene, camera, controls, stats, pointLight
+      let transform = new THREE.Object3D()
+      let result = []
+      let heartMesh
+      let time = 0
+      let bloomComposer, finalComposer
+      const materials = {}
+      const ENTIRE_SCENE = 0
+      const BLOOM_SCENE = 1
+      const bloomLayer = new THREE.Layers()
+      bloomLayer.set(BLOOM_SCENE)
+      const darkMaterial = new THREE.MeshBasicMaterial({ color: 'black' })
+
+      initThree()
+      initBloom()
+      animate()
+
+      function randomSort(a, b) {
+        return Math.random() > 0.5 ? -1 : 1
+      }
+      function darkenNonBloomed(obj) {
+        if (obj instanceof THREE.Scene) {
+          materials.scene = obj.background
+          obj.background = null
+          return
+        }
+        if (obj instanceof THREE.Sprite || (obj.isMesh && bloomLayer.test(obj.layers) === false)) {
+          materials[obj.uuid] = obj.material
+          obj.material = darkMaterial
+        }
+      }
+      function restoreMaterial(obj) {
+        if (obj instanceof THREE.Scene) {
+          obj.background = materials.scene
+          delete materials.background
+          return
+        }
+        if (materials[obj.uuid]) {
+          obj.material = materials[obj.uuid]
+          delete materials[obj.uuid]
+        }
+      }
+      function initBloom() {
+        const effectFXAA = new ShaderPass(FXAAShader)
+        effectFXAA.uniforms['resolution'].value.set(
+          0.6 / window.innerWidth,
+          0.6 / window.innerHeight
+        )
+        effectFXAA.renderToScreen = true
+        const renderScene = new RenderPass(scene, camera)
+        const bloomPass = new UnrealBloomPass(
+          new THREE.Vector2(window.innerWidth, window.innerHeight),
+          1.5,
+          0.4,
+          0.85
+        )
+        bloomPass.threshold = 0
+        bloomPass.strength = 1.5
+        bloomPass.radius = 0
+        bloomComposer = new EffectComposer(renderer)
+        bloomComposer.renderToScreen = false
+        bloomComposer.addPass(renderScene)
+        bloomComposer.addPass(bloomPass)
+        bloomComposer.addPass(effectFXAA)
+        const finalPass = new ShaderPass(
+          new THREE.ShaderMaterial({
+            uniforms: {
+              baseTexture: { value: null },
+              bloomTexture: { value: bloomComposer.renderTarget2.texture }
+            },
+            vertexShader: document.getElementById('vertexshader').textContent,
+            fragmentShader: document.getElementById('fragmentshader').textContent,
+            defines: {}
+          }),
+          'baseTexture'
+        )
+        finalPass.needsSwap = true
+        finalComposer = new EffectComposer(renderer)
+        finalComposer.addPass(renderScene)
+        finalComposer.addPass(finalPass)
+        finalComposer.addPass(effectFXAA)
+      }
+      function initThree() {
+        stats = new Stats()
+        // document.body.appendChild(stats.domElement)
+        renderer = new THREE.WebGLRenderer({ antialias: false })
+        renderer.setPixelRatio(window.devicePixelRatio)
+        renderer.setSize(window.innerWidth, window.innerHeight)
+        document.body.appendChild(renderer.domElement)
+        scene = new THREE.Scene()
+        scene.background = new THREE.Color(0x111111)
+        camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 10000)
+        camera.position.set(3, 3, 6)
+        camera.lookAt(0, 0, 0)
+        initOrbit()
+        initLight()
+        // initHelper()
+        initHeart()
+        toggleBloom()
+        window.addEventListener('resize', onWindowResize)
+        window.addEventListener('orientationchange', onWindowResize)
+      }
+      function toggleBloom() {
+        scene.traverse(obj => {
+          if (obj.name === 'Heart') {
+            obj.layers.toggle(1)
+          }
+        })
+      }
+      function initOrbit() {
+        controls = new OrbitControls(camera, renderer.domElement)
+        controls.enablePan = false
+        controls.enableZoom = false
+        controls.enableDamping = true
+        controls.dampingFactor = 0.05
+        controls.target.set(0, 0, 0)
+        controls.autoRotate = true
+      }
+      function initLight() {
+        pointLight = new THREE.PointLight('#ffffff')
+        scene.add(pointLight)
+      }
+      function initHelper() {
+        const mainAxesHelper = new THREE.AxesHelper(10000)
+        scene.add(mainAxesHelper)
+      }
+      function initHeart() {
+        const arr_xyz = [] // All points
+        let arr_xy = [] // Points of x,y
+        let arr_yz = [] // Points of y,z
+        let arr_xz = [] // Points of x,z
+        const unitSize = 0.01 // unit size
+        const unitSpacing = 0.04 // unit spacing
+        // Get surface points
+        // Calc xRange: [-1.12, 1.12]; yRange: [-0.96, 1.2]; zRange: [-0.64, 0.64]
+        // let xmax = 0
+        // let xmin = 0
+        // let ymax = 0
+        // let ymin = 0
+        // let zmax = 0
+        // let zmin = 0
+        // arr_xyz.map(v => {
+        //   xmax = Math.max(xmax, v.x)
+        //   xmin = Math.min(xmin, v.x)
+        //   ymax = Math.max(ymax, v.y)
+        //   ymin = Math.min(ymin, v.y)
+        //   zmax = Math.max(zmax, v.z)
+        //   zmin = Math.min(zmin, v.z)
+        // })
+        // console.log(xmax, xmin, ymax, ymin, zmax, zmin)
+        let kvx = {}
+        let kvy = {}
+        let kvz = {}
+        for (let x = -1.12; x <= 1.12; x += unitSpacing) {
+          for (let y = -0.96; y <= 1.2; y += unitSpacing) {
+            for (let z = -0.64; z <= 0.64; z += unitSpacing) {
+              x = Number(x.toFixed(2))
+              y = Number(y.toFixed(2))
+              z = Number(z.toFixed(2))
+              // f() = (x^2 + 9/4 * z^2 + y^2 + 1)^3 - x^2 * y^3 - 9/80 * z^2 * y^3
+              const func =
+                Math.pow(Math.pow(x, 2) + (9 / 4) * Math.pow(z, 2) + Math.pow(y, 2) - 1, 3) -
+                Math.pow(x, 2) * Math.pow(y, 3) -
+                (9 / 80) * Math.pow(z, 2) * Math.pow(y, 3)
+              if (func < 0) {
+                arr_xyz.push({ x, y, z })
+                kvx[`${y}_${z}`] = kvx[`${y}_${z}`] ? kvx[`${y}_${z}`].concat([x]) : [x]
+                kvy[`${x}_${z}`] = kvy[`${x}_${z}`] ? kvy[`${x}_${z}`].concat([y]) : [y]
+                kvz[`${x}_${y}`] = kvz[`${x}_${y}`] ? kvz[`${x}_${y}`].concat([z]) : [z]
+                arr_xy.push({ x, y, max_z: 0, min_z: 0 })
+                arr_yz.push({ z, y, max_x: 0, min_x: 0 })
+                arr_xz.push({ x, z, max_y: 0, min_y: 0 })
+              }
+            }
+          }
+        }
+        arr_xy = objArrDistinct(arr_xy)
+        arr_yz = objArrDistinct(arr_yz)
+        arr_xz = objArrDistinct(arr_xz)
+        // Filter out the maximum and minimum axial value
+        arr_xy.forEach(xy => {
+          xy.min_z = Math.min(...kvz[`${xy.x}_${xy.y}`])
+          xy.max_z = Math.max(...kvz[`${xy.x}_${xy.y}`])
+        })
+        arr_yz.forEach(yz => {
+          yz.min_x = Math.min(...kvx[`${yz.y}_${yz.z}`])
+          yz.max_x = Math.max(...kvx[`${yz.y}_${yz.z}`])
+        })
+        arr_xz.forEach(xz => {
+          xz.min_y = Math.min(...kvy[`${xz.x}_${xz.z}`])
+          xz.max_y = Math.max(...kvy[`${xz.x}_${xz.z}`])
+        })
+        // Filter out the surface points => result
+        arr_xy.map(xy => {
+          result.push({ x: xy.x, y: xy.y, z: xy.max_z })
+          result.push({ x: xy.x, y: xy.y, z: xy.min_z })
+        })
+        arr_yz.map(yz => {
+          result.push({ z: yz.z, y: yz.y, x: yz.max_x })
+          result.push({ z: yz.z, y: yz.y, x: yz.min_x })
+        })
+        arr_xz.map(xz => {
+          result.push({ x: xz.x, z: xz.z, z: xz.max_y })
+          result.push({ x: xz.x, z: xz.z, z: xz.min_y })
+        })
+        result = objArrDistinct(result)
+        // Set InstancedMesh
+        const geometry = new THREE.BoxBufferGeometry(unitSize, unitSize, unitSize)
+        const material = new THREE.MeshBasicMaterial()
+        heartMesh = new THREE.InstancedMesh(geometry, material, result.length)
+        heartMesh.name = 'Heart'
+        result = result.sort(randomSort)
+        result.map((res, i) => {
+          transform.position.set(res.x, res.y, res.z)
+          transform.updateMatrix()
+          heartMesh.setMatrixAt(i, transform.matrix)
+          heartMesh.setColorAt(i, new THREE.Color(`rgb(${Math.floor(255 * Math.random())}, 0, 0)`))
+        })
+        scene.add(heartMesh)
+      }
+      function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight
+        camera.updateProjectionMatrix()
+        renderer.setSize(window.innerWidth, window.innerHeight)
+      }
+      /**
+       * Distinct 3d point (x, y, z)
+       */
+      function objArrDistinct(objArr) {
+        let resultArr = [],
+          itemKeyVal = {}
+        objArr.forEach(item => {
+          if (!itemKeyVal[`${item.x}_${item.y}_${item.z}`]) {
+            itemKeyVal[`${item.x}_${item.y}_${item.z}`] = true
+            resultArr.push(item)
+          }
+        })
+        return resultArr
+      }
+      function blingbling() {
+        const t = Date.now() * 0.005
+        result.map((res, i) => {
+          const scale = 1.2 * (0.5 * Math.sin(t + i * 0.1) + 0.5) // range of [0, 1.2]
+          transform.position.set(res.x, res.y, res.z)
+          transform.scale.set(scale, scale, scale)
+          transform.updateMatrix()
+          heartMesh.setMatrixAt(i, transform.matrix)
+        })
+        heartMesh.instanceMatrix.needsUpdate = true
+      }
+      function animate() {
+        blingbling()
+        stats.update()
+        controls.update()
+        scene.traverse(darkenNonBloomed)
+        bloomComposer.render()
+        scene.traverse(restoreMaterial)
+        finalComposer.render()
+        const vector = camera.position.clone()
+        pointLight.position.set(vector.x, vector.y, vector.z)
+        requestAnimationFrame(animate)
+      }
+    </script>
+  </body>
+</html>

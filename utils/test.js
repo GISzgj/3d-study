@@ -1,0 +1,2 @@
+
+http://10.0.33.81:8600/geoserver/cim_traffic/wms?service=WMS&format=image%2Fjpeg&srs=srs%3DEPSG%253A4326&crs=srs%3DEPSG%253A4326&transparent=true&=&version=1.1.0&request=GetMap&bbox=111.00772143682899%2C30.684058472628134%2C111.41468664825047%2C30.856123213567177&width=768&height=330&styles=&layers=cim_traffic%253AParking_POI

@@ -1,0 +1,26 @@
+/* 字体 */
+@font-face{
+  font-family: 'PingFang';
+  src: url('./font/苹方黑体-极细-简.ttf');
+}
+@font-face{
+  font-family: 'YouShe';
+  src: url('./font/优设标题黑.ttf');
+}
+body{
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: PingFang;
+}
+ul, ol {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+li {
+  margin: 0;
+  padding: 0;
+}
+
