@@ -1,13 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite App</title>
   </head>
   <body>
+    <button class="toggle">切换主题</button>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
+    <script>
+      const html = document.querySelector('html')
+      const btm = document.querySelector('.toggle')
+      const currentTheme = {
+        isLight: html.dataset.theme === 'light',
+        get theme() {
+          return this.isLight ? 'light' : 'dark'
+        }
+      }
+      btm.addEventListener('click', () => {
+        currentTheme.isLight = !currentTheme.isLight
+        html.setAttribute('data-theme', currentTheme.theme)
+        // html.dataset.theme = currentTheme.theme
+      })
+    </script>
   </body>
+  <style></style>
 </html>

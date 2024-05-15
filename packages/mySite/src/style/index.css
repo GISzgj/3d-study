@@ -1,0 +1,6 @@
+html[data-theme=light] body {
+  background: #fff;
+}
+html[data-theme=dark] body {
+  background: #3b3b3b;
+}/*# sourceMappingURL=index.css.map */
