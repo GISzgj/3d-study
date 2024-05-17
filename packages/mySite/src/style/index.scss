@@ -1,7 +1,0 @@
-@use './theme/theme.scss';
-body {
-  @include theme.useTheme {
-    background: theme.getVar('background');
-    // background: #ccc;
-  };
-}

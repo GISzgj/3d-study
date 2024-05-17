@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "element-plus": "^2.5.5",
     "pinia": "^2.1.7",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0"
@@ -16,6 +17,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
     "sass": "^1.69.5",
+    "unplugin-auto-import": "^0.16.7",
     "vite": "^5.2.8"
   }
 }
