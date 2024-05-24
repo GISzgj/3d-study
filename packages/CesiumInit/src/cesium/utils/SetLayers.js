@@ -1,6 +1,6 @@
 import * as Cesium from 'cesium'
 import {
-  AmapImageryProvider,
+  AMapImageryProvider,
   BaiduImageryProvider,
   TdtImageryProvider,
   TencentImageryProvider
@@ -22,7 +22,7 @@ export class SetLayers {
         crs: 'WGS84', // 使用84坐标系，默认为：GCJ02
         maximumLevel: 18 // 最大级别
       }
-      const amapImageryProvider = new Cesium.ImageryLayer(new AmapImageryProvider(gdOptions))
+      const amapImageryProvider = new Cesium.ImageryLayer(new AMapImageryProvider(gdOptions))
       this.gdVectorLayerData = this.addLayer(amapImageryProvider)
       console.log('this.gdVectorLayerData', this.gdVectorLayerData)
     } else {

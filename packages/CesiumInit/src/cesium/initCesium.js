@@ -7,11 +7,11 @@ import { selfRotate } from './utils/selfRotate.js'
 import { initWhiteData } from './hooks/addWhiteGlb.js'
 import RadarLight from './hooks/addRadarLight.js'
 import { RadarLightPrimitive } from './hooks/addRadarLight.js'
-
 import addWall from './hooks/addWall.js'
 import { LightWallPrimitive } from './hooks/addWall.js'
 import addLightSpread from './hooks/addLightSpread.js'
 import addLightCone from './hooks/addLightCone.js'
+import loadCesiumNavication from './utils/useCesiumNavication.js'
 import {
   createBoxGeometry,
   createPolylineGeometry,
@@ -93,7 +93,11 @@ export const initCesium = containerHtml => {
     center: [113.2171, 23.009, 10000]
   })
   const bbox = [113.2171, 23.009, 0, 113.2171, 23.209, 0, 113.4191, 23.209, 0, 113.4191, 23.009, 0]
-
+  loadCesiumNavication({
+    viewer: viewer,
+    enableCompass: false,
+    enableZoomControls: false
+  })
   createPolylineGeometry(viewer, {
     positions: bbox,
     width: 5

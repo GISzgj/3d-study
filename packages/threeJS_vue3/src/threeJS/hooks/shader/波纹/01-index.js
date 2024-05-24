@@ -31,20 +31,14 @@ renderer.toneMappingExposure = 0.1
 
 // 设置相机位置
 camera.position.z = 0
-camera.position.y = 25
+camera.position.y = 5
 camera.position.x = 0
 camera.lookAt(0, 0, 0)
 // 轨道控制器
 const controls = new OrbitControls(camera, renderer.domElement)
-const conpar = {
-  maxPolarAngle: (Math.PI / 3) * 2,
-  minPolarAngle: (Math.PI / 3) * 2
-}
+
 controls.enableDamping = true
 controls.dampingFactor = 0.2
-controls.maxPolarAngle = conpar.maxPolarAngle
-controls.minPolarAngle = conpar.minPolarAngle
-
 renderContainer.appendChild(renderer.domElement)
 
 // 加载hdr贴图
@@ -53,7 +47,7 @@ rgbeLoader.load('/texture/Alex_Hart-Nature_Lab_Bones_2k.hdr', envMap => {
   // 设置球形贴图
   envMap.mapping = THREE.EquirectangularReflectionMapping
   // 设置环境贴图
-  scene.background = envMap
+  // scene.background = envMap
   scene.environment = envMap
   // 设置场景的背景
   // 设置plane的环境贴图；可以反射环境贴图
@@ -64,34 +58,20 @@ let shaderMaterial = new THREE.ShaderMaterial({
   fragmentShader: fragmentShader,
   uniforms: {
     uTime: { value: 0 }
-  },
-  side: THREE.DoubleSide
-})
-let mesh = null
-// 加载gltf模型
-const gLTFLoader = new GLTFLoader()
-gLTFLoader.load('./flyLight.glb', gltf => {
-  const model = gltf.scene
-  mesh = gltf.scene.children[0]
-  mesh.material = shaderMaterial
-  // scene.add(clone)
-  const addModels = async () => {
-    for (let i = 0; i < 150; i++) {
-      const clone = model.clone(true)
-      clone.position.x = Math.random() * 100 - 50
-      clone.position.y = (Math.random() - 0.5) * 60 + 10
-      clone.position.z = Math.random() * 100 - 50
-      scene.add(clone)
-    }
   }
-  addModels()
+  // side: THREE.DoubleSide
 })
+const planeGeo = new THREE.PlaneGeometry(1, 1, 512, 512)
+const plane = new THREE.Mesh(planeGeo, shaderMaterial)
+plane.rotation.x = -Math.PI / 2
+// plane.rotateX(Math.PI / 2)
+scene.add(plane)
 
 // 渲染函数
 const clock = new THREE.Clock()
 function animate() {
   const time = clock.getElapsedTime()
-  // shaderMaterial.uniforms.uTime.value = time
+  shaderMaterial.uniforms.uTime.value = time
   requestAnimationFrame(animate)
   controls.update()
   renderer.render(scene, camera)
@@ -103,20 +83,6 @@ let eventObj = {
   }
 }
 const gui = new GUI()
-gui
-  .add(conpar, 'maxPolarAngle')
-  .min(-Math.PI)
-  .max(Math.PI)
-  .onChange(val => {
-    controls.maxPolarAngle = val
-  })
-gui
-  .add(conpar, 'minPolarAngle')
-  .min(-Math.PI)
-  .max(Math.PI)
-  .onChange(val => {
-    controls.minPolarAngle = val
-  })
 gui.add(eventObj, 'FullScreen')
 export default {
   renderer,
