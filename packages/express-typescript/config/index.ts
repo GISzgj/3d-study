@@ -1,8 +1,8 @@
-import {PgsqlConfig} from '../types/types'
+import { PgsqlConfig } from '../types/types'
 type DbConfig = {
-  debug: boolean;
-  pgsql: PgsqlConfig;
-};
+  debug: boolean
+  pgsql: PgsqlConfig
+}
 export const dbConfig: DbConfig = {
   debug: true,
   pgsql: {

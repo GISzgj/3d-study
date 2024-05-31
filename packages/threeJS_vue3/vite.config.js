@@ -12,6 +12,10 @@ export default defineConfig(({ command, mode }) => {
     resolve: {
       alias
     },
+    server: {
+      host: '0.0.0.0',
+      port: 5000
+    },
     plugins: [
       vue({
         script: {

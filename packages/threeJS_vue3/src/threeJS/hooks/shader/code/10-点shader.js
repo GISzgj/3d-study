@@ -125,20 +125,22 @@ const generateGalaxy = () => {
       varying float vImageIndex;
       varying vec3 vColor;
       uniform float uTime;
-      mat3 rotateY(float angle){
-        float s = sin(angle);
-        float c = cos(angle);
-        return mat3(
-          c, s, 1.0,
-          -s, c, 1.0,
-          0.,0.,1.0
-        );
-      }
       void main(){
+    
         vImageIndex = imageIndex;
+        // 获取在xz平面的角度
         vec4 modelPosition = modelMatrix * vec4( position, 1.0);
+        float angle = atan(modelPosition.x, modelPosition.z);
+        float distanceToCenter = length(modelPosition.xz);
+        float angleOffset = 1.0 / distanceToCenter * uTime;
+        // angle += angleOffset;
+        angle += 1.0 / distanceToCenter*uTime;
+        mat2 rotate = mat2(
+          cos(angle ), sin(angle),
+          -sin(angle ), cos(angle)
+        );
+        modelPosition.xz = modelPosition.xz * rotate;
         vec4 viewPosition = viewMatrix * modelPosition;
-        viewPosition.xzy = viewPosition.xzy * rotateY(uTime);
         gl_Position = projectionMatrix * viewPosition;
         gl_PointSize = 200.0 / -viewPosition.z;
         vColor = color;

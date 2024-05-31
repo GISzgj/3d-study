@@ -17,3 +17,4 @@ void main(){
     gl_FragColor=vec4(mixColor.xyz,1);
   }
 }
+
