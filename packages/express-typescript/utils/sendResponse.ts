@@ -2,17 +2,22 @@ import { Response } from 'express'
 
 // 定义响应代码常量
 const ResponseCodes = {
-  SUCCESS: '200',
-  ERROR: '500',
-  NO_AUTHORITY: '401',
-  NO_TOKEN: '400'
+  SUCCESS: 200,
+  ERROR: 500,
+  USER_IS_REGISTER: 200,
+  // 401: '用户没有权限（令牌、用户名、密码错误）。',
+  NO_TOKEN_AUTHORITY: 401,
+  // 前端根据999来判断token是否过期或不一致
+  NO_TOKEN: 999
 } as const
 const MessageCodes = {
   SUCCESS: '操作成功',
   ERROR: '操作失败',
-  NO_AUTHORITY: '无权限访问',
+  USER_IS_REGISTER: '用户已注册',
+  NO_TOKEN_AUTHORITY: '令牌无权限访问',
   NO_TOKEN: '未提供令牌'
 } as const
+
 // 定义响应代码键的类型
 type ResponseCodeKey = keyof typeof ResponseCodes
 /**

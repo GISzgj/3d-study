@@ -1,0 +1,26 @@
+// sidebar
+$menuText: #bfcbd9;
+$menuBg: #304156;
+$menuHover: #263445;
+$menuActive: #0070fa;
+$menuActiveText: #ffffff;
+$subMenuBg: #1f2d3d;
+
+$sideBarWidth: 210px;
+$headerHeight: 50px;
+$sideBarDuration: 0.28s;
+
+// header相关样式
+$topHeaderBg: #fff;
+
+
+:export {
+  menuText: $menuText;
+  menuActiveText: $menuActiveText;
+  menuBg: $menuBg;
+  menuHover: $menuHover;
+  subMenuBg: $subMenuBg;
+  sideBarWidth: $sideBarWidth;
+  headerHeight: $headerHeight;
+  topHeaderBg: $topHeaderBg;
+}

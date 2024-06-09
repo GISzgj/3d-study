@@ -1,0 +1,41 @@
+
+$themeName: 'data-theme';
+$themes: (
+  light: (
+    background: #fff,
+    primary: #007bff,
+    secondary: #6c757d,
+    accent: #868e96,
+    neutral: #343a40,
+    success: #198754,
+    warning: #ffc107,
+    error: #dc3545
+  ),
+  dark: (
+    background: #3b3b3b,
+    primary: #007bff,
+    secondary: #6c757d,
+    accent: #868e96,
+    neutral: #343a40,
+    success: #198754,
+    warning: #ffc107,
+    error: #dc3545,
+  )
+);
+$curTheme: light;
+@mixin useTheme() {
+  @each $theme, $value in $themes {
+    $curTheme: $theme !global;
+    html[#{$themeName}="#{$theme}"] & {
+      // @each $color, $value in $colors {
+      //   --#{$color}: #{$value};
+      // }
+      @content;
+    }
+  }
+}
+
+@function getVar($key){
+  $themeMap: map-get($themes, $curTheme);
+  @return map-get($themeMap, $key);
+}

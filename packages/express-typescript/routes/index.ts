@@ -8,7 +8,7 @@ const apiPath = '/api'
 // 分配路由控制器给不同的路由
 const routes = (app: Application) => {
   app.use('/test', testControler)
-  // /api的基础控制器; 涉及token验证-权限校验
+  // /api的基础控制器; 涉及token验证-权限校验; 之后匹配到api时会惊醒权限校验
   app.use(apiPath, baseControler)
   app.use(apiPath + '/user', userController)
   // /proxy 代理控制器, 反向代理一些外部资源
